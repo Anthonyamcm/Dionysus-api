@@ -4,33 +4,16 @@ const util = require('util');
 const { constantService } = require('../constant');
 const response = require('../response/response.service');
 const { jwtService } = require('../security/index');
-const { strings } = require('../constant');
+const strings = require('../constant');
 const User = require('../database/models/user.model');
 const status = require('../response/status.code');
-const sessionService = require('../services/session.service');
+const sessionService = require('../services/session/session.service');
 const utilService = require('../utils');
 const { dbHelper } = require('../database');
+const analyticsService = require('../services/analytics/analytics.service');
 
 const { DB_TYPE } = process.env;
 
-const checkUserAuth = async (req) => {
-	try {
-		const { authorisedUser } = req;
-		assert(authorisedUser, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-		const user = await dbHelper.fetchOne(User, {
-			query: { _id: authorisedUser._id },
-			middleware: req.middleware,
-			populate: 'role',
-		});
-		assert(user, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-		assert(user.role, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-		return user;
-	} catch (error) {
-		throw error;
-	}
-};
 
 const checkApplicationAuth = async (req, application_id) => {
 	try {
@@ -65,13 +48,8 @@ module.exports = {
 			if (!session_id || _.isEmpty(session_id)) {
 				if (
 					req.originalUrl.includes('/register') ||
-					req.originalUrl.includes('/pre-register') ||
 					req.originalUrl.includes('/forget/password') ||
-					req.originalUrl.includes('/card/by-app') ||
-					req.originalUrl.includes('/users/check') ||
-					req.originalUrl.includes('/kyb') ||
-					req.originalUrl.includes('/sign') ||
-					req.originalUrl.includes('/migration/submit')
+					req.originalUrl.includes('/sign')
 				) {
 					req.headers['session-id'] = '';
 				} else {
@@ -157,175 +135,6 @@ module.exports = {
 		}
 	},
 
-	async admin(req, res, next) {
-		try {
-			const user = await checkUserAuth(req);
-			let isValidRole = false;
-			let isDeputy = false;
-
-			for (const userRole of user.role) {
-				if (
-					userRole.slug === constantService.ROLE.ADMIN ||
-					userRole.slug === constantService.ROLE.SIGNATORY ||
-					userRole.slug === constantService.ROLE.DEPUTY_ADMIN
-				) {
-					isValidRole = true;
-
-					if (userRole.slug === constantService.ROLE.DEPUTY_ADMIN) {
-						isDeputy = true;
-					}
-				}
-			}
-			assert(isValidRole, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-			if (isDeputy) {
-				req.userRole = constantService.ROLE.DEPUTY_ADMIN;
-			} else {
-				req.userRole = constantService.ROLE.ADMIN;
-			}
-
-			next();
-		} catch (e) {
-			response.exception(res, e);
-		}
-	},
-
-	async adminType(req, res, next) {
-		try {
-			const user = await checkUserAuth(req);
-			let isValidRole = false;
-			let isReadOnly = false;
-			let isDeputy = false;
-			for (const userRole of user.role) {
-				if (
-					userRole.slug === constantService.ROLE.ADMIN ||
-					userRole.slug === constantService.ROLE.SIGNATORY ||
-					userRole.slug === constantService.ROLE.DEPUTY_ADMIN ||
-					userRole.slug === constantService.ROLE.ADMIN_READ_ONLY
-				) {
-					isValidRole = true;
-
-					if (userRole.slug === constantService.ROLE.ADMIN_READ_ONLY) {
-						isReadOnly = true;
-					}
-					if (userRole.slug === constantService.ROLE.DEPUTY_ADMIN) {
-						isDeputy = true;
-					}
-				}
-			}
-			assert(isValidRole, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-			if (isReadOnly) {
-				req.userRole = constantService.ROLE.ADMIN_READ_ONLY;
-			} else if (isDeputy) {
-				req.userRole = constantService.ROLE.DEPUTY_ADMIN;
-			} else {
-				req.userRole = constantService.ROLE.ADMIN;
-			}
-
-			next();
-		} catch (e) {
-			response.exception(res, e);
-		}
-	},
-
-	async notdeputy(req, res, next) {
-		try {
-			assert(req.userRole !== constantService.ROLE.DEPUTY_ADMIN, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-			next();
-		} catch (e) {
-			response.exception(res, e);
-		}
-	},
-
-	async superAdmin(req, res, next) {
-		try {
-			// const user = await checkUserAuth(req);
-			const { authorisedUser } = req;
-			assert(authorisedUser, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-			const user = await dbHelper.fetchOne(User, {
-				query: {
-					_id: authorisedUser._id,
-				},
-				populate: 'role',
-			});
-			assert(user, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-			assert(user.role, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-			let isValidRole = false;
-
-			for (const userRole of user.role) {
-				if (userRole.slug === constantService.ROLE.SUPER_ADMIN) {
-					isValidRole = true;
-				}
-			}
-			assert(isValidRole, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-			req.userRole = constantService.ROLE.SUPER_ADMIN;
-
-			next();
-		} catch (e) {
-			response.exception(res, e);
-		}
-	},
-
-	async signatory(req, res, next) {
-		try {
-			const user = await checkUserAuth(req);
-			let isValidRole = false;
-
-			for (const userRole of user.role) {
-				if (userRole.slug === constantService.ROLE.SIGNATORY) {
-					isValidRole = true;
-				}
-			}
-			assert(isValidRole, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-			req.userRole = constantService.ROLE.SIGNATORY;
-
-			next();
-		} catch (e) {
-			response.exception(res, e);
-		}
-	},
-
-	async cardHolder(req, res, next) {
-		try {
-			const user = await checkUserAuth(req);
-			let isValidRole = false;
-
-			for (const userRole of user.role) {
-				if (userRole.slug === constantService.ROLE.CARDHOLDER) {
-					isValidRole = true;
-				}
-			}
-			assert(isValidRole, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-			req.userRole = constantService.ROLE.CARDHOLDER;
-
-			next();
-		} catch (e) {
-			response.exception(res, e);
-		}
-	},
-
-	async otp(req, res, next) {
-		try {
-			const { token, mobile, otp } = req.headers;
-			const otpResult = await otpService.isVerified(req, {
-				token,
-				mobile,
-				otp,
-			});
-			assert(otpResult, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
-
-			// data token record from database
-			next();
-		} catch (e) {
-			response.exception(res, e);
-		}
-	},
-
 	async apiAccess(req, res, next) {
 		try {
 			const apiAccess = req.headers['api-access'];
@@ -339,7 +148,6 @@ module.exports = {
 				assert(application, util.format(utilService.errorService.showMessage(strings.VALIDATION_ERROR.NOT_AUTHORIZE)));
 
 				req.middleware = { application };
-				setDefaultLanguage(application);
 			} else {
 				console.log('Fake Multi - Agri');
 				const application = await dbHelper.fetchOne(Application, {
@@ -351,8 +159,9 @@ module.exports = {
 				assert(application, utilService.errorService.showMessage(strings.VALIDATION_ERROR.APPLICATION_NOT_FOUND));
 
 				req.middleware = { application };
-				setDefaultLanguage(application);
 			}
+
+			await analyticsService.save(req, 'API');
 
 			next();
 		} catch (e) {

@@ -1,9 +1,9 @@
 const assert = require('assert');
-require('../database/models/user.model');
-const { strings } = require('../constant');
-const SessionLogin = require('../database/models/session-login.model');
-const utilService = require('../utils');
-const { dbHelper } = require('../database');
+require('../../database/models/user.model');
+const { strings } = require('../../constant');
+const SessionLogin = require('../../database/models/session-login.model');
+const utilService = require('../../utils');
+const { dbHelper } = require('../../database');
 
 module.exports = {
 	async getSession(req, token = '') {
@@ -21,9 +21,6 @@ module.exports = {
 				query: sessionQuery,
 				populate: {
 					path: 'user',
-					populate: {
-						path: 'role',
-					},
 				},
 				middleware: req.middleware,
 			});

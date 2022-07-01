@@ -47,6 +47,10 @@ const strings = new LocalizedStrings(
                 text: 'This email is already taken',
                 code: '179',
             },
+            CODE_NOT_FOUND: {
+                text: 'Code not found',
+                code: '180',
+            },
 
         }
 

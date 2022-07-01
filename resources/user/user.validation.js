@@ -1,9 +1,6 @@
 const Joi = require('joi');
 const passwordComplexity = require('joi-password-complexity');
 const constantService = require('../../Common/src/constant/constant.service');
-const validatorConstants = require('../../Common/src/constant/validator.constant.service');
-
-const nameRegex = validatorConstants.REGEX_VALIDATORS.NAME;
 
 module.exports = {
 	/**
@@ -13,10 +10,10 @@ module.exports = {
 	 */
 	validateRegisterUser(body) {
 		const schema = Joi.object().keys({
-			first_name: Joi.string().regex(nameRegex).required(),
-			last_name: Joi.string().regex(nameRegex).required(),
+			first_name: Joi.string().required(),
+			last_name: Joi.string().required(),
 			email: Joi.string().email().allow(null, ''),
-			password: passwordComplexity(constantService.PASSWORD_OPTIONS).required(),
+			password: passwordComplexity().required(),
 		});
 		const { value, error } = schema.validate(body);
 
@@ -33,9 +30,7 @@ module.exports = {
     validateLoginUser(body) {
 		const schema =  Joi.object().keys({
 				email: Joi.string().required(),
-				password: passwordComplexity(constantService.PASSWORD_OPTIONS).required(),
-				confirmation_token: Joi.string(),
-				method: Joi.string().allow(null, ''),
+				password: passwordComplexity().required()
 			});
 			
 		const { value, error } = schema.validate(body);

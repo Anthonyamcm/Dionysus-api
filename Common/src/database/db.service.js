@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const dbHelper = require('./db.helper');
 
 const {DB_DATABASE} = process.env;
-let uri = "mongodb+srv://anthonyamcmill:scotland@nexure.xjiap.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+let uri = "mongodb+srv://anthonyamcmill:scotland@nexure.xjiap.mongodb.net/Dionysus?retryWrites=true&w=majority";
 
 /**
  * Closes the connection to the mongo database.

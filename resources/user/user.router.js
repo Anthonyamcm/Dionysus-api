@@ -6,5 +6,6 @@ const userController = require('./user.controller');
 const userRouter = express.Router();
 
 userRouter.post('/register', AsyncWrapper(userController.register));
+userRouter.post('/login', AsyncWrapper(userController.login));
 
 module.exports = userRouter;

@@ -5,8 +5,10 @@ const defaultQueryLimit = parseInt(QUERY_LIMIT, 10);
 
 module.exports = {
 
-    getCustomQuery(model, query, middleware) {
+    getCustomQuery(query, middleware) {
 		const customQuery = { ...query };
+
+		console.log(middleware)
 
 		if (middleware && middleware.application) {
 			customQuery.application = middleware.application._id;

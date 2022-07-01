@@ -20,16 +20,14 @@ const schema = new Schema(
             type: String, 
             required: true 
         },
+        is_activated: {
+			type: Boolean,
+			default: false,
+		},
         token: {
             type: String,
         },
-        createdOn: { 
-            type: Date, 
-            default: Date.now 
-        },
-    },
-    {
-        timestamps: true
+
     }
 );
 

@@ -25,13 +25,19 @@ module.exports = {
 		}
 	},
 	async login(req, res) {
+		console.log(req.body)
 		try {
-			const { value, error } = userValidation.validateLogin(req.body);
+			const { value, error } = userValidation.validateLoginUser(req.body);
 			assert(!error, error);
 
-			req.value = value;
-			req.loginType = constantService.ROLE.CARDHOLDER;
-			const result = await userService.login(req);
+			const userInfo = await userService.getLoginUser(req, {
+				value
+			});
+
+			const result = await userService.login(req, {
+				user: userInfo
+			});
+			
 			response.success(res, result);
 		} catch (error) {
 			response.exception(res, error);

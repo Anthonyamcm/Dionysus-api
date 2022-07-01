@@ -1,7 +1,5 @@
 const redis = require('async-redis');
 
-const { REDIS_PORT, REDIS_HOST, REDIS_PASSWORD, REDIS_TLS } = process.env;
-
 /**
  * Creates the connection to redis.
  * @returns The connection to redis.

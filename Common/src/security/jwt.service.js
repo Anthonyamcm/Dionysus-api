@@ -1,32 +1,27 @@
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
-const path = require('path');
 
-const { JWT_PRIVATE_KEY, JWT_PUBLIC_KEY } = process.env;
-const jwtPrivateKey = path.resolve(__dirname, `../certificates/jwt/${JWT_PRIVATE_KEY}`);
-const jwtPublicKey = path.resolve(__dirname, `../certificates/jwt/${JWT_PUBLIC_KEY}`);
+const jwtKey = "91oKqaxRYQfCNu7kIV9NuwSzJFmig6QNmDq74dUB919K6SXrh5SGFPXCh4WWkK3V-cO2HJOr156ktiEySo9kYoNhof4dzEWarFt16AtFAjKmKAvobQ-QXfM0cxs-IPHStPqIEtFT4f_ltOTiN8HYskJAJffxyOqNXUij0KGiY0k"
 
 module.exports = {
 	// expiresIn in second
-	issue(payload, expiresIn) {
+	issue(payload) {
 		// sign with RSA SHA256
-		const key = fs.readFileSync(jwtPrivateKey);
-		const passphrase = process.env.JWT_PASSPHRASE;
-		const token = jwt.sign(payload, { key, passphrase }, { algorithm: 'RS256', expiresIn });
+		const key = jwtKey;
+		const token = jwt.sign(payload, key, { algorithm: 'HS256', expiresIn: '1d' });
 
 		return token;
 	},
 
 	verify(token) {
-		const key = fs.readFileSync(jwtPublicKey);
-		const payload = jwt.verify(token, key, { algorithms: ['RS256'] });
+		const key = jwtKey;
+		const payload = jwt.verify(token, key, { algorithms: ['HS256']});
 
 		return payload;
 	},
 
 	// Do not use for EB signed tokens, used currently only for Xero token to get a auth_event_id during sign in
 	decode(token) {
-		const payload = jwt.decode(token, { algorithms: ['RS256'] });
+		const payload = jwt.decode(token, { algorithms: ['HS256'] });
 		return payload;
 	},
 };
