@@ -48,7 +48,6 @@ module.exports = {
 			const session = await this.getSession(req);
 			if (session && !req.authorisedUser) {
 				const { user } = session;
-				req.userRole = user.role[0].slug;
 				req.authorisedUser = user;
 			}
 		} catch (error) {

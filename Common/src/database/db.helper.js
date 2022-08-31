@@ -8,12 +8,9 @@ module.exports = {
     getCustomQuery(query, middleware) {
 		const customQuery = { ...query };
 
-		console.log(middleware)
-
 		if (middleware && middleware.application) {
 			customQuery.application = middleware.application._id;
 		}
-
 		return customQuery;
 	},
 

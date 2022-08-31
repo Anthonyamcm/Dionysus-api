@@ -27,6 +27,22 @@ module.exports = {
 			value,
 		};
 	},
+	validateGetUser(body) {
+		const schema = Joi.object().keys({
+			id: Joi.string().required(),
+			senderId: Joi.string().required()
+		});
+		const { value, error } = schema.validate(body);
+
+		if (error) {
+			return {
+				error,
+			};
+		}
+		return {
+			value,
+		};
+	},
     validateLoginUser(body) {
 		const schema =  Joi.object().keys({
 				email: Joi.string().required(),

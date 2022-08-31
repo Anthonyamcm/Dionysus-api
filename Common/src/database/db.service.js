@@ -26,7 +26,7 @@ const initializeDatabase = () => {
 	return new Promise((resolve, reject) => {
 		if (!global.db) {
 			try {
-				const connectionOptions = { useNewUrlParser: true, useUnifiedTopology: true};
+				const connectionOptions = { useNewUrlParser: true, useUnifiedTopology: false};
 
 				mongoose.connect(uri, connectionOptions); // mongodb://username:password@host:port/database
 

@@ -16,7 +16,7 @@ const AsyncWrapper = (fn) => {
  * @returns
  */
 const showMessage = (msgObject) => {
-	return `${msgObject.code} Error: ${msgObject.text}`;
+	return `${msgObject.text}`;
 };
 
 module.exports = {

@@ -25,7 +25,6 @@ module.exports = {
 		}
 	},
 	async login(req, res) {
-		console.log(req.body)
 		try {
 			const { value, error } = userValidation.validateLoginUser(req.body);
 			assert(!error, error);
@@ -123,4 +122,41 @@ module.exports = {
 			return response.exception(res, error);
 		}
 	},
+	async getUserDetails(req, res){
+		try {
+			const { value, error } = userValidation.validateGetUser({
+				...req.body,
+			});
+			assert(!error, error);
+
+			const result = await userService.getUserDetailsById(req, value);
+			return response.success(res, result);
+		} catch (error) {
+			return response.exception(res, error);
+		}
+	},
+	async sendFriendRequest(req, res){
+		try {
+			const result = await userService.sendFriendRequest(req, req.body);
+			return response.success(res, result);
+		} catch (error) {
+			return response.exception(res, error);
+		}
+	},
+	async acceptFriendRequest(req, res){
+		try {
+			const result = await userService.acceptFriendRequest(req, req.body);
+			return response.success(res, result);
+		} catch (error) {
+			return response.exception(res, error);
+		}
+	},
+	async declineFriendRequest(req, res){
+		try {
+			const result = await userService.declineFriendRequest(req, req.body);
+			return response.success(res, result);
+		} catch (error) {
+			return response.exception(res, error);
+		}
+	}
 }

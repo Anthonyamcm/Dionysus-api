@@ -24,6 +24,22 @@ const schema = new Schema(
 			type: Boolean,
 			default: false,
 		},
+        friends: [{
+            user: {
+                type: 'ObjectId',
+                ref: 'User',
+                index: { background: false },
+            },
+            status: {
+                type: Number,
+                enum: [
+                    0,
+                    1,
+                    2,
+                    3
+                ]
+            }
+        }],
         token: {
             type: String,
         },
